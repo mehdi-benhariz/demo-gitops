@@ -1,10 +1,25 @@
-- name: example
-  rules:
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: demo-gitops-alerts
+  namespace: monitoring
+spec:
+  groups:
+  - name: "demo-gitops"
+    rules:
     - alert: InstanceDown
       expr: up == 0
-      for: 1m
+      for: 5m
       labels:
-        severity: critical
+        severity: page
       annotations:
-        summary: "Instance down"
-        description: "Instance {{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
+        summary: "Instance {{ $labels.instance }} down"
+        description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes."
+    - alert: APIHighRequestLatency
+      expr: api_http_request_latencies_seconds{quantile="0.5"} > 1
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High request latency on {{ $labels.instance }}"
+        description: "{{ $labels.instance }} has a median request latency above 1s (current value: {{ $value }}s)"
