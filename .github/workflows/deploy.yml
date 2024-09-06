@@ -16,7 +16,11 @@ jobs:
       - name: Install SOPS and Kubectl
         run: |
           sudo apt-get update
-          sudo apt-get install -y sops kubectl
+          sudo apt-get install -y kubectl
+          SOPS_VERSION=$(curl --silent "https://api.github.com/repos/mozilla/sops/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') # Fetch the latest version of SOPS
+          curl -L "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux" -o sops
+          chmod +x sops
+          sudo mv sops /usr/local/bin/
 
       - name: Setup Kubeconfig
         run: echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
