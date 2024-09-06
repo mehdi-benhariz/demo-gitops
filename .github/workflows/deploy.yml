@@ -47,3 +47,25 @@ jobs:
             exit 1
           fi
         shell: /usr/bin/bash -e {0}
+      - name: Apply Kubernetes Manifests
+        run: |
+          # Apply the decrypted secret
+          if [ -f secret.yaml ]; then
+            kubectl apply -f secret.yaml
+          else
+            echo "secret.yaml not found, skipping secret application"
+          fi
+
+          # Apply the Kubernetes deployment for Ghost and Nginx
+          if [ -f k8s-deployment.yaml ]; then
+            kubectl apply -f k8s-deployment.yaml
+          else
+            echo "k8s-deployment.yaml not found"
+            exit 1
+          fi
+        shell: /usr/bin/bash -e {0}
+
+      - name: Confirm Deployment
+        run: |
+          kubectl get pods
+          kubectl get svc
