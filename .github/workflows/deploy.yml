@@ -32,7 +32,10 @@ jobs:
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
-
+      - name: Import PGP Private Key
+        run: |
+            echo "${{ secrets.PGP_PRIVATE_KEY }}" | gpg --import
+            
       - name: Decrypt and Apply Secrets
         run: |
           chmod +x ./decrypt-secrets.sh
