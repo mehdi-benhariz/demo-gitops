@@ -29,5 +29,7 @@ jobs:
 
       - name: Decrypt and Apply Secrets
         run: |
+          chmod +x ./decrypt-secrets.sh
           ./decrypt-secrets.sh
           kubectl apply -f k8s-deployment.yaml
+        shell: /usr/bin/bash -e {0}
