@@ -77,7 +77,7 @@ jobs:
               helm install grafana grafana/grafana --namespace monitoring 
       - name: Expose Grafana Service
         run: |
-          kubectl expose deployment grafana --type=LoadBalancer --name=grafana --namespace=monitoring 
+          kubectl expose deployment grafana --type=LoadBalancer --name=grafana-service --namespace=monitoring 
 
       - name: Apply Prometheus Alert Rules
         run: |
