@@ -20,12 +20,51 @@ spec:
         env:
         - name: url
           value: http://localhost:2368
+        - name: database__client
+          value: "mysql"
+        - name: database__connection__host
+          value: "localhost"
+        - name: database__connection__user
+          value: "ghost"
+        - name: database__connection__password
+          valueFrom:
+            secretKeyRef:
+              name: ghost-db-secret
+              key: password
+        - name: database__connection__database
+          value: "ghost"
         livenessProbe:
           httpGet:
             path: /health
             port: 2368
           initialDelaySeconds: 60
           periodSeconds: 30
+      - name: mysql
+        image: mysql:5.7
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ghost-db-secret
+              key: root-password
+        - name: MYSQL_USER
+          value: "ghost"
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ghost-db-secret
+              key: password
+        - name: MYSQL_DATABASE
+          value: "ghost"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-storage
+        persistentVolumeClaim:
+          claimName: mysql-pvc
 ---
 apiVersion: v1
 kind: Service
