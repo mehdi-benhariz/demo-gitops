@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - main  # Run on push to main branch
+      - main 
 
 jobs:
   deploy:
@@ -31,5 +31,10 @@ jobs:
         run: |
           chmod +x ./decrypt-secrets.sh
           ./decrypt-secrets.sh
-          kubectl apply -f k8s-deployment.yaml
+          if [ -f k8s-deployment.yaml ]; then
+            kubectl apply -f k8s-deployment.yaml
+          else
+            echo "k8s-deployment.yaml not found"
+            exit 1
+          fi
         shell: /usr/bin/bash -e {0}
