@@ -2,11 +2,18 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ghost-deployment
+
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: ghost
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
   template:
     metadata:
       labels:
