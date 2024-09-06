@@ -7,12 +7,6 @@ spec:
   selector:
     matchLabels:
       app: ghost
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  storageClassName: standard
   template:
     metadata:
       labels:
@@ -29,48 +23,126 @@ spec:
         - name: database__client
           value: "mysql"
         - name: database__connection__host
-          value: "localhost"
+          value: "mariadb"
         - name: database__connection__user
           value: "ghost"
-        - name: database__connection__password
+        - name: database__connection__password  
           valueFrom:
             secretKeyRef:
-              name: ghost-db-secret
+              name: demo-secret
               key: password
         - name: database__connection__database
-          value: "ghost"
+          value: "ghostdb"
+          
         livenessProbe:
           httpGet:
             path: /health
             port: 2368
           initialDelaySeconds: 60
           periodSeconds: 30
-      - name: mysql
-        image: mysql:5.7
+    
+        volumeMounts:
+        - name: ghost-content-storage
+          mountPath: /var/lib/ghost/content
+      volumes:
+      - name: ghost-content-storage
+        persistentVolumeClaim:
+          claimName: ghost-pvc
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb:latest
+        ports:
+        - containerPort: 3306
         env:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: ghost-db-secret
+              name: demo-secret
               key: root-password
         - name: MYSQL_USER
           value: "ghost"
         - name: MYSQL_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: ghost-db-secret
+              name: demo-secret
               key: password
         - name: MYSQL_DATABASE
-          value: "ghost"
-        ports:
-        - containerPort: 3306
+          value: "ghostdb"
         volumeMounts:
-        - name: mysql-storage
+        - name: mariadb-storage
           mountPath: /var/lib/mysql
       volumes:
-      - name: mysql-storage
+      - name: mariadb-storage
         persistentVolumeClaim:
-          claimName: mysql-pvc
+          claimName: mariadb-pvc
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ghost-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ghost-service
+spec:
+  selector:
+    app: ghost
+  ports:
+  - protocol: TCP
+    port: 2368
+    targetPort: 2368
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+spec:
+  selector:
+    app: mariadb
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
+
 ---
 apiVersion: v1
 kind: Service
