@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ghost-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ghost
+  template:
+    metadata:
+      labels:
+        app: ghost
+    spec:
+      containers:
+      - name: ghost
+        image: ghost:latest
+        ports:
+        - containerPort: 2368
+        env:
+        - name: url
+          value: http://localhost:2368
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 2368
+          initialDelaySeconds: 60
+          periodSeconds: 30

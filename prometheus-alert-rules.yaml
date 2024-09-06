@@ -1,0 +1,10 @@
+- name: example
+  rules:
+    - alert: InstanceDown
+      expr: up == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Instance down"
+        description: "Instance {{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute."
