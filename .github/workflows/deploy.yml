@@ -20,7 +20,11 @@ jobs:
           SOPS_VERSION=$(curl --silent "https://api.github.com/repos/mozilla/sops/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/') # Fetch the latest version of SOPS
           curl -L "https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux" -o sops
           chmod +x sops
-          sudo mv sops /usr/local/bin/
+          sudo mv sops /usr/local/bin/sops
+          
+      - name: Verify SOPS Installation
+        run: |
+          sops --version
 
       - name: Setup Kubeconfig
         run: |
