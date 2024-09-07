@@ -42,7 +42,7 @@ spec:
             memory: 128Mi
         livenessProbe:
           httpGet:
-            path: /health
+            path: /ghost
             port: 2368
           initialDelaySeconds: 60
           periodSeconds: 30
