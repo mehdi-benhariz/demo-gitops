@@ -1,4 +1,4 @@
-# Technical Challenge Documentation
+# GitOps Demo Documentation
 
 ## Overview
 
